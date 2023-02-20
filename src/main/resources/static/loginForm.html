@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>loginForm</title>
+</head>
+<body>
+<div class="flex_main_container">
+  <h1>로그인</h1>
+  <div class="flex_explanation_container">
+    <div class="flex_explanation_container">
+      <div class="flex_item1_grid">
+        <div>
+          <label> username :</label>
+        </div>
+        <div>
+          <input id="input_username" class="input"/>
+          <br/>
+        </div>
+        <div>
+          <label> password : </label>
+        </div>
+        <div>
+          <input id="input_password" class="input"/>
+          <br/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="buttons" class="button">
+    <button id="login_button" onclick=clickLogin()>login</button>
+    <button id="info_button" onclick=clickInfo()>내정보</button>
+  </div>
+</div>
+<script>
+
+  function clickLogin() {
+    var input_username = document.getElementById("input_username").value;
+    var input_password = document.getElementById("input_password").value;
+
+    var jsonRequest = JSON.stringify({
+      name: input_username,
+      password: input_password
+    })
+
+    fetch("http://localhost:8080/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: jsonRequest,
+    }).then((response) => {
+      console.log("response: " + response);
+      return response.json();
+    }).then(json => {
+      console.log("accessToken: " + json.accessToken);
+      let accessToken = json.accessToken;
+      window.localStorage.setItem("jwt", accessToken);
+      //localStorage.setItem("jwt", accessToken);
+      window.localStorage.setItem('pricatice', '1234567890');
+      console.log("login success!");
+      // window.location.href = "/";
+    })
+  };
+
+  function clickInfo() {
+    fetch("/info", {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem("jwt"),
+      }
+    }).then(res => res.json())
+    .then(json => {
+      alert("이름 : " + json.name + ", 비밀번호 : " + json.password)
+    })
+  }
+</script>
+</body>
+</html>
